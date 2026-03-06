@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการข้อมูล - Management System</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:linear-gradient(135deg,#a8d8ea 0%,#d4f1f4 100%); min-height:100vh; padding:20px; }
+        .container { background:white; padding:40px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); max-width:1400px; width:100%; margin:0 auto; animation:fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @media(max-width:768px){ .container{padding:20px} body{padding:10px} }
+        .login-container { max-width:450px; margin:0 auto; padding:20px; }
+        .logo-container { text-align:center; margin-bottom:30px; }
+        .logo { font-size:64px; margin-bottom:10px; }
+        h1 { color:#2c3e50; text-align:center; margin-bottom:30px; font-size:28px; }
+        h2 { color:#34495e; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #3498db; font-size:22px; }
+        .header-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:15px; }
+        .user-info { color:#7f8c8d; font-size:14px; }
+        .form-group { margin-bottom:20px; }
+        label { display:block; margin-bottom:8px; color:#555; font-weight:500; font-size:14px; }
+        input[type="text"],input[type="password"],input[type="date"],select,textarea { width:100%; padding:12px 15px; border:2px solid #ddd; border-radius:8px; font-size:14px; transition:all 0.3s; font-family:inherit; }
+        textarea { min-height:80px; resize:vertical; }
+        input:focus,select:focus,textarea:focus { outline:none; border-color:#3498db; box-shadow:0 0 0 3px rgba(52,152,219,0.1); }
+        button { background:#3498db; color:white; padding:12px 30px; border:none; border-radius:8px; cursor:pointer; font-size:16px; font-weight:500; transition:all 0.3s; display:inline-flex; align-items:center; gap:8px; }
+        button:hover { background:#2980b9; transform:translateY(-2px); box-shadow:0 4px 12px rgba(52,152,219,0.3); }
+        button:active { transform:translateY(0); }
+        .btn-full { width:100%; justify-content:center; }
+        .btn-logout { background:#e74c3c; } .btn-logout:hover { background:#c0392b; }
+        .menu-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px; margin-bottom:30px; }
+        .menu-card { color:white; padding:40px 30px; border-radius:15px; text-align:center; cursor:pointer; transition:all 0.3s; background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
+        .menu-card:hover { transform:translateY(-8px); box-shadow:0 15px 35px rgba(0,0,0,0.3); }
+        .menu-card-icon { font-size:48px; margin-bottom:15px; }
+        .menu-card h3 { margin-bottom:10px; font-size:22px; }
+        .menu-card p { font-size:14px; opacity:0.9; }
+        .back-btn { background:#95a5a6; margin-bottom:20px; } .back-btn:hover { background:#7f8c8d; }
+        .stats-container { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; }
+        .stat-card { flex:1; min-width:200px; color:white; padding:20px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+        .stat-card h3 { font-size:14px; margin-bottom:10px; opacity:0.9; font-weight:500; }
+        .stat-card .number { font-size:36px; font-weight:bold; margin-bottom:5px; }
+        .stat-card .label { font-size:12px; opacity:0.8; }
+        .stat-card:nth-child(1) { background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
+        .stat-card:nth-child(2) { background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%); }
+        .stat-card:nth-child(3) { background:linear-gradient(135deg,#fa709a 0%,#fee140 100%); }
+        .action-buttons { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+        .action-buttons button { padding:8px 16px; font-size:14px; }
+        .btn-add { background:#27ae60; } .btn-add:hover { background:#229954; }
+        .btn-export { background:#16a085; } .btn-export:hover { background:#138d75; }
+        .btn-edit { background:#f39c12; } .btn-edit:hover { background:#d68910; }
+        .btn-delete { background:#e74c3c; } .btn-delete:hover { background:#c0392b; }
+        .btn-migrate { background:linear-gradient(135deg,#667eea,#764ba2); font-size:15px; padding:12px 25px; }
+        .btn-migrate:hover { background:linear-gradient(135deg,#5a6fd6,#6a3f96); }
+        .search-container { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+        .search-container input { flex:1; min-width:200px; }
+        table { width:100%; border-collapse:collapse; margin-top:20px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-radius:8px; overflow:hidden; }
+        th { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:15px; text-align:left; font-weight:600; font-size:14px; }
+        td { padding:12px 15px; border-bottom:1px solid #ecf0f1; font-size:14px; }
+        tr:hover { background-color:#f8f9fa; }
+        tr:last-child td { border-bottom:none; }
+        .status-badge { padding:6px 12px; border-radius:20px; font-size:12px; font-weight:500; display:inline-block; }
+        .status-borrowed { background:#fee; color:#e74c3c; }
+        .status-returned { background:#e8f5e9; color:#27ae60; }
+        .status-yes { background:#e8f5e9; color:#27ae60; }
+        .status-no { background:#fee; color:#e74c3c; }
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5); }
+        .modal-content { background:#fefefe; margin:5% auto; padding:30px; border-radius:15px; width:90%; max-width:600px; box-shadow:0 10px 40px rgba(0,0,0,0.3); max-height:90vh; overflow-y:auto; animation:slideDown 0.3s; }
+        @keyframes slideDown { from{transform:translateY(-50px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .close { color:#aaa; float:right; font-size:32px; font-weight:bold; line-height:20px; cursor:pointer; }
+        .close:hover { color:#e74c3c; }
+        .no-results { text-align:center; padding:40px 20px !important; color:#7f8c8d; }
+        .hidden { display:none !important; }
+
+        /* Migrate banner */
+        .migrate-banner { background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:20px 25px; border-radius:12px; margin-bottom:25px; display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+        .migrate-banner strong { font-size:17px; display:block; margin-bottom:4px; }
+        .migrate-banner p { font-size:14px; line-height:1.5; opacity:0.95; }
+
+        /* Loading */
+        #loadingOverlay { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.88); align-items:center; justify-content:center; flex-direction:column; }
+        #loadingOverlay.show { display:flex; }
+        .spinner { width:50px; height:50px; border:5px solid #ddd; border-top-color:#3498db; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:15px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* Toast */
+        #toast { position:fixed; bottom:30px; right:30px; background:#2ecc71; color:white; padding:14px 24px; border-radius:10px; font-size:15px; font-weight:500; box-shadow:0 4px 15px rgba(0,0,0,0.2); display:none; z-index:9999; max-width:320px; line-height:1.4; }
+        #toast.error { background:#e74c3c; }
+
+        /* Firebase badge — real-time pulse */
+        .fb-badge { display:none !important; }
+        
+        
+        .pulse-dot { display:none !important; }
+        
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+        /* Row highlight when data updates */
+        @keyframes rowFlash { from{background:#fff9c4} to{background:transparent} }
+        .row-flash { animation:rowFlash 1.2s ease; }
+
+        @media(max-width:768px){ table{font-size:12px} th,td{padding:8px} .action-buttons{flex-direction:column} .menu-container{grid-template-columns:1fr} }
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay"><div class="spinner"></div><p style="color:#555;font-size:16px;" id="loadingText">กำลังเชื่อมต่อ Firebase...</p></div>
+<div id="toast"></div>
+
+
+<!-- Login -->
+<div id="loginPage" class="container hidden">
+    <div class="login-container">
+        <div class="logo-container"><div class="logo">💼</div><h1>ระบบจัดการข้อมูล</h1><p style="color:#7f8c8d;margin-bottom:30px;">Management System</p></div>
+        <div class="form-group"><label>👤 ชื่อผู้ใช้</label><input type="text" id="username" placeholder="กรอกชื่อผู้ใช้"></div>
+        <div class="form-group"><label>🔒 รหัสผ่าน</label><input type="password" id="password" placeholder="กรอกรหัสผ่าน"></div>
+        <button class="btn-full" onclick="login()">🔐 เข้าสู่ระบบ</button>
+    </div>
+</div>
+
+<!-- Main -->
+<div id="mainPage" class="container hidden">
+    <div class="migrate-banner hidden" id="migrateBanner">
+        <div><strong>📦 พบข้อมูลเดิมในเครื่องนี้!</strong><p>กดปุ่มด้านขวาเพื่อโอนข้อมูลทั้งหมดขึ้น Firebase<br>ทำครั้งเดียว — ทุกเครื่องจะเห็นข้อมูลครบทันที ✅</p></div>
+        <button class="btn-migrate" onclick="migrateFromLocalStorage()">🚀 โอนข้อมูลขึ้น Firebase</button>
+    </div>
+    <div class="header-bar">
+        <h1>🏢 ระบบจัดการข้อมูล</h1>
+        <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;"><span class="user-info" id="currentUser"></span><button class="btn-logout" onclick="logout()">🚪 ออกจากระบบ</button></div>
+    </div>
+    <div class="menu-container">
+        <div class="menu-card" onclick="showPage('ipCscs')"><div class="menu-card-icon">🌐</div><h3>จัดการ IP CSC</h3><p>ระบบจัดการ IP Address ของ CSC</p></div>
+        <div class="menu-card" onclick="showPage('ipBcm')"><div class="menu-card-icon">📡</div><h3>จัดการ IP BCM</h3><p>ระบบจัดการ IP Address ของ BCM</p></div>
+        <div class="menu-card" onclick="showPage('equipment')"><div class="menu-card-icon">📦</div><h3>ยืม-คืนอุปกรณ์</h3><p>ระบบจัดการการยืมคืนอุปกรณ์</p></div>
+    </div>
+</div>
+
+<!-- IP CSCS -->
+<div id="ipCscsPage" class="container hidden">
+    <button class="back-btn" onclick="backToMain()">← กลับหน้าหลัก</button>
+    <h2>🌐 จัดการ IP CSCS</h2>
+    <div class="stats-container"><div class="stat-card"><h3>📊 จำนวนอุปกรณ์ทั้งหมด</h3><div class="number" id="totalIpCscs">0</div><div class="label">เครื่อง</div></div></div>
+    <div class="action-buttons" style="margin-bottom:20px;"><button class="btn-add" onclick="openModal('ipCscs')">➕ เพิ่ม IP ใหม่</button><button class="btn-export" onclick="exportToCSV('ipCscs')">📥 Export CSV</button></div>
+    <div class="search-container"><input type="text" id="searchIpCscs" placeholder="🔍 ค้นหา IP, ชื่ออุปกรณ์, แผนก..." onkeyup="searchData('ipCscs')"><button onclick="searchData('ipCscs')">🔍 ค้นหา</button><button onclick="clearSearch('ipCscs')" style="background:#95a5a6;">🔄 ล้าง</button></div>
+    <table><thead><tr><th>ลำดับ</th><th>IP Address</th><th>ชื่ออุปกรณ์</th><th>แผนก</th><th>สถานะ</th><th>SSO</th><th>Office 365</th><th>หมายเหตุ</th><th>จัดการ</th></tr></thead><tbody id="ipCscsTableBody"></tbody></table>
+</div>
+
+<!-- IP BCM -->
+<div id="ipBcmPage" class="container hidden">
+    <button class="back-btn" onclick="backToMain()">← กลับหน้าหลัก</button>
+    <h2>📡 จัดการ IP BCM</h2>
+    <div class="stats-container"><div class="stat-card"><h3>📊 จำนวนอุปกรณ์ทั้งหมด</h3><div class="number" id="totalIpBcm">0</div><div class="label">เครื่อง</div></div></div>
+    <div class="action-buttons" style="margin-bottom:20px;"><button class="btn-add" onclick="openModal('ipBcm')">➕ เพิ่ม IP ใหม่</button><button class="btn-export" onclick="exportToCSV('ipBcm')">📥 Export CSV</button></div>
+    <div class="search-container"><input type="text" id="searchIpBcm" placeholder="🔍 ค้นหา IP, ชื่ออุปกรณ์, แผนก..." onkeyup="searchData('ipBcm')"><button onclick="searchData('ipBcm')">🔍 ค้นหา</button><button onclick="clearSearch('ipBcm')" style="background:#95a5a6;">🔄 ล้าง</button></div>
+    <table><thead><tr><th>ลำดับ</th><th>IP Address</th><th>ชื่ออุปกรณ์</th><th>แผนก</th><th>สถานะ</th><th>SSO</th><th>Office 365</th><th>หมายเหตุ</th><th>จัดการ</th></tr></thead><tbody id="ipBcmTableBody"></tbody></table>
+</div>
+
+<!-- Equipment -->
+<div id="equipmentPage" class="container hidden">
+    <button class="back-btn" onclick="backToMain()">← กลับหน้าหลัก</button>
+    <h2>📦 ยืม-คืนอุปกรณ์</h2>
+    <div class="stats-container">
+        <div class="stat-card"><h3>📊 จำนวนทั้งหมด</h3><div class="number" id="totalEquipment">0</div><div class="label">รายการ</div></div>
+        <div class="stat-card"><h3>🔴 กำลังยืมอยู่</h3><div class="number" id="borrowedEquipment">0</div><div class="label">รายการ</div></div>
+        <div class="stat-card"><h3>🟢 คืนแล้ว</h3><div class="number" id="returnedEquipment">0</div><div class="label">รายการ</div></div>
+    </div>
+    <div class="action-buttons" style="margin-bottom:20px;"><button class="btn-add" onclick="openModal('equipment')">➕ เพิ่มรายการยืม</button><button class="btn-export" onclick="exportToCSV('equipment')">📥 Export CSV</button></div>
+    <div class="search-container"><input type="text" id="searchEquipment" placeholder="🔍 ค้นหาชื่ออุปกรณ์, ผู้ยืม..." onkeyup="searchData('equipment')"><button onclick="searchData('equipment')">🔍 ค้นหา</button><button onclick="clearSearch('equipment')" style="background:#95a5a6;">🔄 ล้าง</button></div>
+    <table><thead><tr><th>ลำดับ</th><th>ชื่ออุปกรณ์</th><th>ผู้ยืม</th><th>วันที่ยืม</th><th>วันที่คืน</th><th>สถานะ</th><th>หมายเหตุ</th><th>จัดการ</th></tr></thead><tbody id="equipmentTableBody"></tbody></table>
+</div>
+
+<!-- Modal -->
+<div id="dataModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">เพิ่มข้อมูล</h2>
+        <form id="dataForm">
+            <div id="formFields"></div>
+            <div style="margin-top:20px;display:flex;gap:10px;">
+                <button type="submit" style="flex:1;">💾 บันทึก</button>
+                <button type="button" onclick="closeModal()" style="flex:1;background:#95a5a6;">❌ ยกเลิก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+    getFirestore, collection, addDoc, updateDoc, deleteDoc,
+    doc, query, orderBy, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBpqR2NzOz3dtcMm0ttffvESdiEIYO1SsQ",
+    authDomain: "management-system-7ffb0.firebaseapp.com",
+    projectId: "management-system-7ffb0",
+    storageBucket: "management-system-7ffb0.firebasestorage.app",
+    messagingSenderId: "115963179254",
+    appId: "1:115963179254:web:a871929e6d2cc108797cd7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────────────────────────
+let database = { ipCscs:[], ipBcm:[], equipment:[] };
+let currentEditId = null;
+let currentEditSystem = null;
+let activePage = null;           // หน้าที่กำลังเปิดอยู่
+let unsubscribers = [];          // เก็บ listener เพื่อยกเลิกตอน logout
+let isLoggedIn = false;
+
+// ── UI Helpers ─────────────────────────────────────────────────────────────
+const showLoading = (msg='กำลังโหลด...') => { document.getElementById('loadingText').textContent=msg; document.getElementById('loadingOverlay').classList.add('show'); };
+const hideLoading = () => document.getElementById('loadingOverlay').classList.remove('show');
+const showToast = (msg, err=false) => {
+    const t=document.getElementById('toast'); t.textContent=msg;
+    t.className=err?'error':''; t.style.display='block';
+    setTimeout(()=>t.style.display='none', 3500);
+};
+const setBadge = () => {};
+
+// ── Real-time Listeners (onSnapshot) ──────────────────────────────────────
+function startListeners() {
+    // ยกเลิก listener เก่าก่อน
+    unsubscribers.forEach(u=>u());
+    unsubscribers=[];
+
+    ['ipCscs','ipBcm','equipment'].forEach(key => {
+        const q = query(collection(db, key), orderBy('createdAt','asc'));
+        const unsub = onSnapshot(q,
+            (snap) => {
+                const newData = snap.docs.map(d=>({...d.data(), _docId:d.id}));
+                const oldIds  = new Set(database[key].map(i=>i._docId));
+                database[key] = newData;
+                setBadge('🔴 Live — อัปเดตอัตโนมัติ', true);
+
+                // ถ้ากำลังเปิดหน้านั้นอยู่ → render ทันที
+                if (activePage === key) {
+                    renderTable(key);
+                    // flash row ที่เพิ่งเพิ่มมาใหม่
+                    snap.docChanges().forEach(change => {
+                        if (change.type==='added' && !oldIds.has(change.doc.id)) {
+                            setTimeout(()=>{
+                                const rows=document.querySelectorAll(`#${key==='equipment'?'equipment':'ip'+key.slice(2)}TableBody tr`);
+                                // หา row ที่ตรงกับ docId
+                                document.querySelectorAll(`[data-docid="${change.doc.id}"]`).forEach(r=>r.classList.add('row-flash'));
+                            }, 100);
+                        }
+                    });
+                }
+            },
+            (err) => setBadge('❌ '+err.message, false)
+        );
+        unsubscribers.push(unsub);
+    });
+}
+
+function stopListeners() {
+    unsubscribers.forEach(u=>u());
+    unsubscribers=[];
+}
+
+// ── CRUD ───────────────────────────────────────────────────────────────────
+async function addItem(system, data) {
+    showLoading('กำลังบันทึก...');
+    try {
+        data.createdAt = Date.now();
+        await addDoc(collection(db,system), data);
+        // onSnapshot จะอัปเดต UI เองอัตโนมัติ
+    } catch(e) { showToast('❌ บันทึกไม่สำเร็จ: '+e.message, true); }
+    hideLoading();
+}
+
+async function updateItem(system, docId, data) {
+    showLoading('กำลังอัปเดต...');
+    try {
+        await updateDoc(doc(db,system,docId), data);
+        showToast('✅ แก้ไขเรียบร้อยแล้ว');
+    } catch(e) { showToast('❌ แก้ไขไม่สำเร็จ: '+e.message, true); }
+    hideLoading();
+}
+
+async function deleteItem(system, docId) {
+    showLoading('กำลังลบ...');
+    try {
+        await deleteDoc(doc(db,system,docId));
+        showToast('🗑️ ลบข้อมูลเรียบร้อยแล้ว');
+    } catch(e) { showToast('❌ ลบไม่สำเร็จ: '+e.message, true); }
+    hideLoading();
+}
+
+// ── Migrate from localStorage ──────────────────────────────────────────────
+window.migrateFromLocalStorage = async () => {
+    const raw = localStorage.getItem('managementSystemData');
+    if (!raw) { showToast('⚠️ ไม่พบข้อมูลเดิมในเครื่องนี้', true); return; }
+    const old = JSON.parse(raw);
+    const total = (old.ipCscs?.length||0)+(old.ipBcm?.length||0)+(old.equipment?.length||0);
+    if (!total) { showToast('⚠️ ข้อมูลเดิมว่างเปล่า', true); return; }
+    if (!confirm(`📦 พบข้อมูลเดิม ${total} รายการ\nต้องการโอนขึ้น Firebase ทั้งหมดหรือไม่?`)) return;
+    showLoading(`⏫ กำลังโอน ${total} รายการ...`);
+    try {
+        let count=0;
+        for (const key of ['ipCscs','ipBcm','equipment']) {
+            for (const item of (old[key]||[])) {
+                const {id,...data}=item;
+                data.createdAt = item.id||Date.now()+count;
+                await addDoc(collection(db,key), data);
+                count++;
+            }
+        }
+        document.getElementById('migrateBanner').classList.add('hidden');
+        localStorage.removeItem('managementSystemData');
+        hideLoading();
+        showToast(`✅ โอนสำเร็จ ${count} รายการ! ทุกเครื่องเห็นข้อมูลแล้ว`);
+    } catch(e) { hideLoading(); showToast('❌ โอนไม่สำเร็จ: '+e.message, true); }
+};
+
+function checkMigrateBanner() {
+    const raw = localStorage.getItem('managementSystemData');
+    if (!raw) return;
+    const old = JSON.parse(raw);
+    const total = (old.ipCscs?.length||0)+(old.ipBcm?.length||0)+(old.equipment?.length||0);
+    if (total > 0) document.getElementById('migrateBanner').classList.remove('hidden');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+showLoading('กำลังเชื่อมต่อ Firebase...');
+// เริ่ม listener ทันทีเพื่อโหลดข้อมูลครั้งแรก (onSnapshot จะ fire ครั้งแรกเสมอ)
+let initCount = 0;
+['ipCscs','ipBcm','equipment'].forEach(key => {
+    const q = query(collection(db,key), orderBy('createdAt','asc'));
+    const unsub = onSnapshot(q,
+        (snap) => {
+            database[key] = snap.docs.map(d=>({...d.data(),_docId:d.id}));
+            initCount++;
+            if (initCount===3) {
+                hideLoading();
+                setBadge('🔴 Live — อัปเดตอัตโนมัติ', true);
+                document.getElementById('loginPage').classList.remove('hidden');
+                // ถ้า login อยู่แล้วและกำลังเปิดหน้าใดหน้าหนึ่ง → render
+                if (isLoggedIn && activePage) renderTable(activePage);
+            }
+        },
+        (err) => { hideLoading(); setBadge('❌ '+err.message, false); document.getElementById('loginPage').classList.remove('hidden'); }
+    );
+    unsubscribers.push(unsub);
+});
+
+// ── Login / Logout ─────────────────────────────────────────────────────────
+function doLogin(u) {
+    isLoggedIn=true;
+    sessionStorage.setItem('loggedIn','1');
+    sessionStorage.setItem('username', u);
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('currentUser').textContent=`👤 ${u}`;
+    checkMigrateBanner();
+    const lastPage = sessionStorage.getItem('lastPage');
+    if (lastPage) { showPage(lastPage); }
+    else { document.getElementById('mainPage').classList.remove('hidden'); }
+}
+
+window.login = () => {
+    const u=document.getElementById('username').value.trim();
+    const p=document.getElementById('password').value;
+    if (u==='administrator' && p==='miscsc') { doLogin(u); }
+    else { showToast('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', true); }
+};
+
+window.logout = () => {
+    if (!confirm('🚪 ต้องการออกจากระบบหรือไม่?')) return;
+    isLoggedIn=false; activePage=null;
+    sessionStorage.clear();
+    ['mainPage','ipCscsPage','ipBcmPage','equipmentPage'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('username').value=''; document.getElementById('password').value='';
+};
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+window.showPage = (page) => {
+    activePage = page;
+    sessionStorage.setItem('lastPage', page);
+    ['ipCscsPage','ipBcmPage','equipmentPage'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    document.getElementById('mainPage').classList.add('hidden');
+    const map={ipCscs:'ipCscsPage',ipBcm:'ipBcmPage',equipment:'equipmentPage'};
+    document.getElementById(map[page]).classList.remove('hidden');
+    renderTable(page);
+};
+
+window.backToMain = () => {
+    activePage=null;
+    sessionStorage.removeItem('lastPage');
+    ['ipCscsPage','ipBcmPage','equipmentPage'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    document.getElementById('mainPage').classList.remove('hidden');
+};
+
+// ── Auto restore session on refresh ───────────────────────────────────────
+if (sessionStorage.getItem('loggedIn')==='1') {
+    const _u = sessionStorage.getItem('username') || 'administrator';
+    const _wait = setInterval(()=>{
+        if (initCount>=3) { clearInterval(_wait); doLogin(_u); }
+    }, 100);
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────
+window.openModal = (system, docId=null) => {
+    currentEditSystem=system; currentEditId=docId;
+    const ff=document.getElementById('formFields');
+    const mt=document.getElementById('modalTitle');
+    ff.innerHTML='';
+    const data=docId?database[system].find(i=>i._docId===docId):null;
+
+    if (system==='ipCscs'||system==='ipBcm') {
+        mt.textContent=docId?`✏️ แก้ไข IP ${system==='ipCscs'?'CSCS':'BCM'}`:`➕ เพิ่ม IP ${system==='ipCscs'?'CSCS':'BCM'}`;
+        ff.innerHTML=`
+            <div class="form-group"><label>IP Address *</label><input type="text" id="ipAddress" required value="${data?.ipAddress||''}" placeholder="เช่น 192.168.1.1"></div>
+            <div class="form-group"><label>ชื่ออุปกรณ์ *</label><input type="text" id="deviceName" required value="${data?.deviceName||''}" placeholder="เช่น Server-01"></div>
+            <div class="form-group"><label>แผนก *</label><input type="text" id="department" required value="${data?.department||''}" placeholder="เช่น IT"></div>
+            <div class="form-group"><label>สถานะ *</label><select id="status" required>
+                <option value="ใช้งาน" ${data?.status==='ใช้งาน'?'selected':''}>ใช้งาน</option>
+                <option value="ว่าง" ${data?.status==='ว่าง'?'selected':''}>ว่าง</option>
+                <option value="ซ่อม" ${data?.status==='ซ่อม'?'selected':''}>ซ่อม</option>
+            </select></div>
+            <div class="form-group"><label>SSO *</label><select id="sso" required>
+                <option value="มี" ${data?.sso==='มี'?'selected':''}>มี</option>
+                <option value="ไม่มี" ${data?.sso==='ไม่มี'?'selected':''}>ไม่มี</option>
+            </select></div>
+            <div class="form-group"><label>Office 365 *</label><select id="office365" required>
+                <option value="มี" ${data?.office365==='มี'?'selected':''}>มี</option>
+                <option value="ไม่มี" ${data?.office365==='ไม่มี'?'selected':''}>ไม่มี</option>
+            </select></div>
+            <div class="form-group"><label>หมายเหตุ</label><textarea id="note">${data?.note||''}</textarea></div>`;
+    } else {
+        mt.textContent=docId?'✏️ แก้ไขรายการยืม':'➕ เพิ่มรายการยืม';
+        ff.innerHTML=`
+            <div class="form-group"><label>ชื่ออุปกรณ์ *</label><input type="text" id="equipmentName" required value="${data?.equipmentName||''}" placeholder="เช่น โปรเจคเตอร์"></div>
+            <div class="form-group"><label>ผู้ยืม *</label><input type="text" id="borrower" required value="${data?.borrower||''}" placeholder="ชื่อผู้ยืม"></div>
+            <div class="form-group"><label>วันที่ยืม *</label><input type="date" id="borrowDate" required value="${data?.borrowDate||new Date().toISOString().split('T')[0]}"></div>
+            <div class="form-group"><label>วันที่คืน</label><input type="date" id="returnDate" value="${data?.returnDate||''}"></div>
+            <div class="form-group"><label>สถานะ *</label><select id="status" required>
+                <option value="ยืมอยู่" ${data?.status==='ยืมอยู่'?'selected':''}>ยืมอยู่</option>
+                <option value="คืนแล้ว" ${data?.status==='คืนแล้ว'?'selected':''}>คืนแล้ว</option>
+            </select></div>
+            <div class="form-group"><label>หมายเหตุ</label><textarea id="note">${data?.note||''}</textarea></div>`;
+    }
+    document.getElementById('dataModal').style.display='block';
+};
+
+window.closeModal=()=>{ document.getElementById('dataModal').style.display='none'; currentEditId=null; currentEditSystem=null; };
+
+document.getElementById('dataForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sys=currentEditSystem; const eid=currentEditId;
+    let data;
+    if (sys==='ipCscs'||sys==='ipBcm') {
+        data={ipAddress:document.getElementById('ipAddress').value, deviceName:document.getElementById('deviceName').value, department:document.getElementById('department').value, status:document.getElementById('status').value, sso:document.getElementById('sso').value, office365:document.getElementById('office365').value, note:document.getElementById('note').value};
+    } else {
+        data={equipmentName:document.getElementById('equipmentName').value, borrower:document.getElementById('borrower').value, borrowDate:document.getElementById('borrowDate').value, returnDate:document.getElementById('returnDate').value, status:document.getElementById('status').value, note:document.getElementById('note').value};
+    }
+    closeModal();
+    if (eid) await updateItem(sys,eid,data);
+    else await addItem(sys,data);
+});
+
+window.deleteData=async(system,docId)=>{ if(!confirm('⚠️ ต้องการลบข้อมูลนี้หรือไม่?')) return; await deleteItem(system,docId); };
+
+// ── Render ─────────────────────────────────────────────────────────────────
+window.renderTable=(system,filteredData=null)=>{
+    const bodyMap={ipCscs:'ipCscsTableBody',ipBcm:'ipBcmTableBody',equipment:'equipmentTableBody'};
+    const tbody=document.getElementById(bodyMap[system]);
+    const data=filteredData??database[system];
+    tbody.innerHTML=''; updateStats(system);
+    if (!data.length){ tbody.innerHTML=`<tr><td colspan="${system==='equipment'?8:9}" class="no-results">ไม่พบข้อมูล<br><small>เพิ่มข้อมูลใหม่ได้ที่ปุ่มด้านบน</small></td></tr>`; return; }
+    data.forEach((item,idx)=>{
+        const row=document.createElement('tr');
+        row.setAttribute('data-docid', item._docId);
+        if (system==='ipCscs'||system==='ipBcm') {
+            row.innerHTML=`<td>${idx+1}</td><td><strong>${item.ipAddress}</strong></td><td>${item.deviceName}</td><td>${item.department}</td><td>${item.status}</td><td><span class="status-badge ${item.sso==='มี'?'status-yes':'status-no'}">${item.sso||'ไม่มี'}</span></td><td><span class="status-badge ${item.office365==='มี'?'status-yes':'status-no'}">${item.office365||'ไม่มี'}</span></td><td>${item.note||'-'}</td><td class="action-buttons"><button class="btn-edit" onclick="openModal('${system}','${item._docId}')">✏️ แก้ไข</button><button class="btn-delete" onclick="deleteData('${system}','${item._docId}')">🗑️ ลบ</button></td>`;
+        } else {
+            row.innerHTML=`<td>${idx+1}</td><td><strong>${item.equipmentName}</strong></td><td>${item.borrower}</td><td>${fmtDate(item.borrowDate)}</td><td>${item.returnDate?fmtDate(item.returnDate):'-'}</td><td><span class="status-badge ${item.status==='ยืมอยู่'?'status-borrowed':'status-returned'}">${item.status}</span></td><td>${item.note||'-'}</td><td class="action-buttons"><button class="btn-edit" onclick="openModal('equipment','${item._docId}')">✏️ แก้ไข</button><button class="btn-delete" onclick="deleteData('equipment','${item._docId}')">🗑️ ลบ</button></td>`;
+        }
+        tbody.appendChild(row);
+    });
+};
+
+function updateStats(s){
+    if(s==='ipCscs') document.getElementById('totalIpCscs').textContent=database.ipCscs.length;
+    else if(s==='ipBcm') document.getElementById('totalIpBcm').textContent=database.ipBcm.length;
+    else{ document.getElementById('totalEquipment').textContent=database.equipment.length; document.getElementById('borrowedEquipment').textContent=database.equipment.filter(i=>i.status==='ยืมอยู่').length; document.getElementById('returnedEquipment').textContent=database.equipment.filter(i=>i.status==='คืนแล้ว').length; }
+}
+
+function fmtDate(d){ if(!d) return '-'; return new Date(d).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'}); }
+
+window.searchData=(system)=>{ const idMap={ipCscs:'searchIpCscs',ipBcm:'searchIpBcm',equipment:'searchEquipment'}; const term=document.getElementById(idMap[system]).value.toLowerCase().trim(); if(!term){renderTable(system);return;} let filtered; if(system==='ipCscs'||system==='ipBcm') filtered=database[system].filter(i=>[i.ipAddress,i.deviceName,i.department,i.status,i.sso,i.office365,i.note].some(v=>v&&v.toLowerCase().includes(term))); else filtered=database.equipment.filter(i=>[i.equipmentName,i.borrower,i.status,i.borrowDate,i.returnDate,i.note].some(v=>v&&v.toLowerCase().includes(term))); renderTable(system,filtered); };
+window.clearSearch=(system)=>{ const idMap={ipCscs:'searchIpCscs',ipBcm:'searchIpBcm',equipment:'searchEquipment'}; document.getElementById(idMap[system]).value=''; renderTable(system); };
+
+window.exportToCSV=(system)=>{ const cfg={ipCscs:{data:database.ipCscs,filename:'IP_CSCS_Export.csv',headers:['ลำดับ','IP Address','ชื่ออุปกรณ์','แผนก','สถานะ','SSO','Office 365','หมายเหตุ']},ipBcm:{data:database.ipBcm,filename:'IP_BCM_Export.csv',headers:['ลำดับ','IP Address','ชื่ออุปกรณ์','แผนก','สถานะ','SSO','Office 365','หมายเหตุ']},equipment:{data:database.equipment,filename:'Equipment_Export.csv',headers:['ลำดับ','ชื่ออุปกรณ์','ผู้ยืม','วันที่ยืม','วันที่คืน','สถานะ','หมายเหตุ']}}; const{data,filename,headers}=cfg[system]; if(!data.length){showToast('⚠️ ไม่มีข้อมูลสำหรับ Export',true);return;} let csv='\uFEFF'+headers.join(',')+'\n'; data.forEach((item,i)=>{ const row=system==='equipment'?[i+1,item.equipmentName,item.borrower,item.borrowDate,item.returnDate||'-',item.status,item.note||'-']:[i+1,item.ipAddress,item.deviceName,item.department,item.status,item.sso||'ไม่มี',item.office365||'ไม่มี',item.note||'-']; csv+=row.join(',')+'\n'; }); const link=document.createElement('a'); link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); link.download=filename; link.click(); };
+
+window.onclick=e=>{ if(e.target===document.getElementById('dataModal')) closeModal(); };
+document.getElementById('password').addEventListener('keypress',e=>{ if(e.key==='Enter') login(); });
+</script>
+</body>
+</html>
